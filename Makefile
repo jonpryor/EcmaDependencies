@@ -1,22 +1,15 @@
 CONFIGURATION = Debug
+MSBUILD       = xbuild
+RUNTIME       = mono --debug
 
 all: missing.txt
 
 clean:
-	-rm -Rf bin obj
+	-$(MSBUILD) /t:Clean
 
 missing.txt: bin/$(CONFIGURATION)/GetMissingTypes.exe
-	mono --debug $< > $@
+	$(RUNTIME) $< > $@
 
-bin/$(CONFIGURATION)/GetMissingTypes.exe: src/GetMissingTypes.cs obj/$(CONFIGURATION)/Ecma335Types.cs
-	mkdir -p "`dirname "$@"`"
-	mcs -debug+ /out:$@ $^
-
-obj/$(CONFIGURATION)/Ecma335Types.cs: bin/$(CONFIGURATION)/GetEcma335Types.exe
-	mkdir -p "`dirname "$@"`"
-	mono $< lib/CLILibraryTypes.xml > $@
-
-bin/$(CONFIGURATION)/GetEcma335Types.exe: src/GetEcma335Types.cs
-	mkdir -p "`dirname "$@"`"
-	mcs -debug+ $< -out:$@ -r:System.Xml.Linq.dll
+bin/$(CONFIGURATION)/GetMissingTypes.exe: src/MissingTypes/GetMissingTypes.cs
+	$(MSBUILD)
 
