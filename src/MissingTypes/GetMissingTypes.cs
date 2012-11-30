@@ -87,12 +87,29 @@ namespace EcmaDeps
 
 			var missingTypes = info.Select (e => e.Type).Except (ToStandarize).Except (Ecma335.Types);
 			Console.WriteLine ("# Missing: {0} Types", missingTypes.Count ());
-			foreach (var missing in missingTypes.OrderBy (s => s.FullName)) {
+			foreach (var missing in missingTypes) {
 				Console.WriteLine ("Missing: {0}", missing.FullName);
 				var e = info [missing];
 				var m = e.At.First ();
 				Console.WriteLine ("\tAt: {0}/{1} plus {2} others...", m.DeclaringType.FullName, m, e.At.Count - 1);
+				foreach (var b in e.At.Where (mi => Array.IndexOf (ToStandarize,
+							GetTypeDefinition (mi.DeclaringType)) >= 0))
+					Console.WriteLine ("\tBecause: {0}", b.DeclaringType.FullName + "/" + b);
 			}
+		}
+
+		static Type GetTypeDefinition (Type type)
+		{
+			if (type.IsGenericParameter)
+				return null;
+
+			if (type.IsArray || type.IsByRef || type.IsPointer)
+				return GetTypeDefinition (type.GetElementType ());
+
+			if (type.IsGenericType && !type.IsGenericTypeDefinition)
+				return type.GetGenericTypeDefinition ();
+
+			return type;
 		}
 
 		static Type AddReferencedTypes (Type type, ICollection<Type> seen, EncounteredCollection info)
