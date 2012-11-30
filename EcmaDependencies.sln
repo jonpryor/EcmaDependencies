@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecma335Types", "src\Ecma335Types\Ecma335Types.csproj", "{AC22C50A-B5A4-4946-8358-A250DBA2D182}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MissingTypes", "src\MissingTypes\MissingTypes.csproj", "{518C71F7-DC57-41D4-BD1A-58280D0E5341}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{518C71F7-DC57-41D4-BD1A-58280D0E5341}.Debug|x86.ActiveCfg = Debug|x86
+		{518C71F7-DC57-41D4-BD1A-58280D0E5341}.Debug|x86.Build.0 = Debug|x86
+		{518C71F7-DC57-41D4-BD1A-58280D0E5341}.Release|x86.ActiveCfg = Release|x86
+		{518C71F7-DC57-41D4-BD1A-58280D0E5341}.Release|x86.Build.0 = Release|x86
+		{AC22C50A-B5A4-4946-8358-A250DBA2D182}.Debug|x86.ActiveCfg = Debug|x86
+		{AC22C50A-B5A4-4946-8358-A250DBA2D182}.Debug|x86.Build.0 = Debug|x86
+		{AC22C50A-B5A4-4946-8358-A250DBA2D182}.Release|x86.ActiveCfg = Release|x86
+		{AC22C50A-B5A4-4946-8358-A250DBA2D182}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = MissingTypes\MissingTypes.csproj
+	EndGlobalSection
+EndGlobal
