@@ -84,6 +84,7 @@ namespace EcmaDeps
 			typeof (System.AggregateException),
 			typeof (System.Collections.ObjectModel.ReadOnlyCollection<>),
 			typeof (System.EventHandler<>),
+			typeof (System.Runtime.CompilerServices.StateMachineAttribute),
 			typeof (System.Threading.CancellationToken),
 			typeof (System.Threading.CancellationTokenRegistration),
 		};
@@ -106,8 +107,10 @@ namespace EcmaDeps
 			foreach (var missing in missingTypes) {
 				Console.WriteLine ("Missing: {0}", missing.FullName);
 				var e = info [missing];
-				var m = e.At.First ();
-				Console.WriteLine ("\tAt: {0}/{1} plus {2} others...", m.DeclaringType.FullName, m, e.At.Count - 1);
+				foreach (var m in e.At)
+					Console.WriteLine ("\tAt: {0}{1} plus {2} others...",
+							m.DeclaringType == null ? "" : m.DeclaringType.FullName,
+							m, e.At.Count - 1);
 				foreach (var b in e.At.Where (mi => Array.IndexOf (ToStandarize,
 							GetTypeDefinition (mi.DeclaringType)) >= 0))
 					Console.WriteLine ("\tBecause: {0}", b.DeclaringType.FullName + "/" + b);
@@ -116,6 +119,9 @@ namespace EcmaDeps
 
 		static Type GetTypeDefinition (Type type)
 		{
+			if (type == null)
+				return null;
+
 			if (type.IsGenericParameter)
 				return null;
 
@@ -159,6 +165,11 @@ namespace EcmaDeps
 			info.Add (new Encountered {
 					Type = type,
 			});
+
+			if (type.BaseType != null) {
+				var b = AddReferencedTypes (type.BaseType, seen, info);
+				SeenAt (info, b, type);
+			}
 
 			foreach (var c in type.GetConstructors (DeclaredMembers)) {
 				var ps = c.GetParameters ();
