@@ -127,6 +127,9 @@ namespace EcmaDeps
 			Tuple.Create ("GetObjectData", new[]{typeof(System.Runtime.Serialization.SerializationInfo), typeof (System.Runtime.Serialization.StreamingContext)}),
 		};
 
+		const BindingFlags DeclaredMembers = BindingFlags.Public | BindingFlags.NonPublic |
+			BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+
 		static Type AddReferencedTypes (Type type, ICollection<Type> seen, EncounteredCollection info)
 		{
 			if (seen.Contains (type))
@@ -148,26 +151,29 @@ namespace EcmaDeps
 					Type = type,
 			});
 
-			var found = new HashSet<MemberInfo> ();
-
-			foreach (var c in type.GetConstructors ()) {
+			foreach (var c in type.GetConstructors (DeclaredMembers)) {
 				var ps = c.GetParameters ();
 				if (SkipConstructors.Any (s => s.SequenceEqual (ps.Select (p => p.ParameterType))))
 					continue;
 
-				found.Add (c);
+				if (!(c.IsPublic || c.IsFamily))
+					continue;
+
 				foreach (var p in ps) {
 					var t = AddReferencedTypes (p.ParameterType, seen, info);
 					SeenAt (info, t, c);
 				}
 			}
 
-			foreach (var m in type.GetMethods ()) {
+			foreach (var m in type.GetMethods (DeclaredMembers)) {
 				var ps = m.GetParameters ();
 				if (SkipMethods.Any (s => s.Item1 == m.Name &&
 							s.Item2.SequenceEqual (ps.Select (p => p.ParameterType))))
 					continue;
-				found.Add (m);
+
+				if (!(m.IsPublic || m.IsFamily))
+					continue;
+
 				foreach (var p in ps) {
 					var pt = AddReferencedTypes (p.ParameterType, seen, info);
 					SeenAt (info, pt, m);
@@ -176,32 +182,33 @@ namespace EcmaDeps
 				SeenAt (info, rt, m);
 			}
 
-			foreach (var f in type.GetFields ()) {
-				found.Add (f);
+			foreach (var f in type.GetFields (DeclaredMembers)) {
+				if (!(f.IsPublic || f.IsFamily))
+					continue;
+
 				var ft = AddReferencedTypes (f.FieldType, seen, info);
 				SeenAt (info, ft, f);
 			}
 
-			foreach (var p in type.GetProperties ()) {
-				found.Add (p);
+			foreach (var p in type.GetProperties (DeclaredMembers)) {
+				if (p.GetAccessors (nonPublic:false).All (m => !(m.IsPublic || m.IsFamily)))
+					continue;
+
 				var pt = AddReferencedTypes (p.PropertyType, seen, info);
 				SeenAt (info, pt, p);
 			}
 
-			foreach (var e in type.GetEvents ()) {
-				found.Add (e);
+			foreach (var e in type.GetEvents (DeclaredMembers)) {
+				var m = e.GetAddMethod (nonPublic:false);
+				if (!(m.IsPublic || m.IsFamily))
+					continue;
+
 				var et = AddReferencedTypes (e.EventHandlerType, seen, info);
 				SeenAt (info, et, e);
 			}
 
 			foreach (var t in type.GetNestedTypes ()) {
-				found.Add (t);
 				AddReferencedTypes (t, seen, info);
-			}
-
-			foreach (var m in type.GetMembers ()) {
-				if (!found.Contains (m))
-					Console.WriteLine ("# missed member: {0} [type: {1}]", m, m.MemberType);
 			}
 
 			return type;
