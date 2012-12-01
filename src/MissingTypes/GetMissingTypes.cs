@@ -143,9 +143,6 @@ namespace EcmaDeps
 				return AddReferencedTypes (type.GetGenericTypeDefinition (), seen, info);
 			}
 
-			if (type.FullName == "System.AggregateException")
-				Console.WriteLine ("wat!");
-
 			seen.Add (type);
 			info.Add (new Encountered {
 					Type = type,
