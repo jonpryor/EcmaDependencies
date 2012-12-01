@@ -112,6 +112,14 @@ namespace EcmaDeps
 			return type;
 		}
 
+		static readonly Type[][] SkipConstructors = new[]{
+			new[]{typeof(System.Runtime.Serialization.SerializationInfo), typeof (System.Runtime.Serialization.StreamingContext)},
+		};
+
+		static readonly Tuple<string, Type[]>[] SkipMethods = new[]{
+			Tuple.Create ("GetObjectData", new[]{typeof(System.Runtime.Serialization.SerializationInfo), typeof (System.Runtime.Serialization.StreamingContext)}),
+		};
+
 		static Type AddReferencedTypes (Type type, ICollection<Type> seen, EncounteredCollection info)
 		{
 			if (seen.Contains (type))
@@ -128,6 +136,9 @@ namespace EcmaDeps
 				return AddReferencedTypes (type.GetGenericTypeDefinition (), seen, info);
 			}
 
+			if (type.FullName == "System.AggregateException")
+				Console.WriteLine ("wat!");
+
 			seen.Add (type);
 			info.Add (new Encountered {
 					Type = type,
@@ -136,16 +147,24 @@ namespace EcmaDeps
 			var found = new HashSet<MemberInfo> ();
 
 			foreach (var c in type.GetConstructors ()) {
+				var ps = c.GetParameters ();
+				if (SkipConstructors.Any (s => s.SequenceEqual (ps.Select (p => p.ParameterType))))
+					continue;
+
 				found.Add (c);
-				foreach (var p in c.GetParameters ()) {
+				foreach (var p in ps) {
 					var t = AddReferencedTypes (p.ParameterType, seen, info);
 					SeenAt (info, t, c);
 				}
 			}
 
 			foreach (var m in type.GetMethods ()) {
+				var ps = m.GetParameters ();
+				if (SkipMethods.Any (s => s.Item1 == m.Name &&
+							s.Item2.SequenceEqual (ps.Select (p => p.ParameterType))))
+					continue;
 				found.Add (m);
-				foreach (var p in m.GetParameters ()) {
+				foreach (var p in ps) {
 					var pt = AddReferencedTypes (p.ParameterType, seen, info);
 					SeenAt (info, pt, m);
 				}
