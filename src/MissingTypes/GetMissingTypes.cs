@@ -66,7 +66,7 @@ namespace EcmaDeps
 			typeof (Task),
 			typeof (Task<>),
 
-			// typeof (TaskCancelledException),
+			// typeof (TaskCancelledException),	// doesn't compile
 			typeof (TaskCompletionSource<>),
 			typeof (TaskContinuationOptions),
 			typeof (TaskCreationOptions),
@@ -77,6 +77,15 @@ namespace EcmaDeps
 			typeof (TaskSchedulerException),
 			typeof (TaskStatus),
 			typeof (UnobservedTaskExceptionEventArgs),
+
+			//
+			// Proposed Additions
+			//
+			typeof (System.AggregateException),
+			typeof (System.Collections.ObjectModel.ReadOnlyCollection<>),
+			typeof (System.EventHandler<>),
+			typeof (System.Threading.CancellationToken),
+			typeof (System.Threading.CancellationTokenRegistration),
 		};
 
 		public static void Main (string[] args)
