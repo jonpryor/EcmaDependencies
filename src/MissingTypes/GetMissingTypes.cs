@@ -15,20 +15,27 @@ namespace EcmaDeps
 		static readonly Type[] ToStandarize = new []{
 			// System.Linq
 			typeof (Enumerable),
-			typeof (EnumerableExecutor),
-			typeof (EnumerableExecutor<>),
-			typeof (EnumerableQuery),
-			typeof (EnumerableQuery<>),
 			typeof (IGrouping<,>),
 			typeof (ILookup<,>),
 			typeof (IOrderedEnumerable<>),
-			typeof (IOrderedQueryable),
-			typeof (IOrderedQueryable<>),
-			typeof (IQueryable),
-			typeof (IQueryable<>),
-			typeof (IQueryProvider),
 			typeof (Lookup<,>),
-			typeof (Queryable),
+
+			//
+			// Anything Queryable-related pulls in System.Linq.Expressions,
+			// System.Reflection.Emit, and lots of other things: 78 additional types
+			// are needed if we pull in Queryable. Remove these, and it's 12.
+			//
+
+			// typeof (EnumerableExecutor),
+			// typeof (EnumerableExecutor<>),
+			// typeof (EnumerableQuery),
+			// typeof (EnumerableQuery<>),
+			// typeof (IOrderedQueryable),
+			// typeof (IOrderedQueryable<>),
+			// typeof (IQueryable),
+			// typeof (IQueryable<>),
+			// typeof (IQueryProvider),
+			// typeof (Queryable),
 
 			// System.Runtime.CompilerServices
 			typeof (AsyncStateMachineAttribute),
